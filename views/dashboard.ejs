@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dasshboard</title>
+</head>
+<body>
+
+    <%- include('layout/header.ejs') %>
+
+    <h2 class="mb-4">Hii <%= user.name %></h2>
+
+    <div class="row">
+
+        <div class="col-md-4">
+            <ul class="list-group">
+
+                <% 
+                
+                    if(users.length > 0){
+                        for(let i=0; i < users.length; i++){
+                            %>
+                                <li class="list-group-item dark cursor-pointer">
+                                    <img src="<%= users[i]['image'] %>" alt="" width="50px" height="100px">
+                                    <%= users[i]['name'] %>
+
+                                    <% 
+                                    
+                                        if(users[i]['isOnline'] == '1'){
+                                            %>
+                                                <sup class="online-status" id="<%= users[i]['_id'] %>-status">Online</sup>
+                                            <%
+                                        }
+                                        else{
+                                            %>
+                                                <sup class="offline-status" id="<%= users[i]['_id'] %>-status">Offline</sup>
+                                            <%
+                                        }
+                                    
+                                    %>
+
+
+                                </li>
+                            <%
+                        }
+                    }
+                %>
+
+            </ul>
+        </div>
+
+        <div class="col-md-8">
+
+            <h3 class="start-head">Click to Start the Chat</h3> 
+            <div class="chat-section">
+
+                <div id="chat-container">
+
+                </div>
+
+                <form action="" id="chat-form">
+                    <input type="text" name="message" id="message" placeholder="Enter Message" class="border" required>
+                    <input type="submit" name="" class="btn btn-primary" value="Send Message">
+                </form>
+
+            </div>           
+
+        </div>
+
+    </div>
+
+    <script>
+
+        var sender_id = '<%= user._id %>'
+
+        var socket = io('/user-namespace', {
+            auth:{
+                token: '<%= user._id %>',
+            }
+        })
+
+        $(document).ready(function (){
+            $('.user-list').click(function(){
+                $('.start-head').hide()
+                $('.chat-section').show()
+            })
+        })
+
+        // update user online status
+        socket.on('getOnlineUser', function(data){
+            $('#'+data.user_id+'-status').text("Online")
+            $('#'+data.user_id+'-status').removeClass("offline-class")
+            $('#'+data.user_id+'-status').addClass("online-status")
+        })
+
+        // update user online status
+        socket.on('getOfflineUser', function(data){
+            $('#'+data.user_id+'-status').text("Offine")
+            $('#'+data.user_id+'-status').removeClass("online-class")
+            $('#'+data.user_id+'-status').addClass("offine-status") 
+        })
+
+        
+
+    </script>
+
+    <%- include('layout/footer.ejs') %>
+    
+</body>
+</html>
